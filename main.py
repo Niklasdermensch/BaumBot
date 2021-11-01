@@ -167,4 +167,4 @@ async def on_message(message):
 			vc = await message.author.voice.channel.connect()
 		vc.play(discord.FFmpegPCMAudio('moan.mp3'))
 
-client.run('ODkzNTU4MzM5Mjk0ODgzOTEw.YVdNDQ.eUttYwnWcuA2DuBYDpxWHcGCPyU')
+client.run('ODkzNTU4MzM5Mjk0ODgzOTEw.YVdNDQ.i-d5auCOMnXh2aH6J5nnxtMvoxs')
