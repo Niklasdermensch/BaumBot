@@ -81,6 +81,9 @@ class BaumBot:
             await context.send(self.reddit_client.get_random_subreddit(count, onlyNSFW=True))
 
 if __name__ == '__main__':
-    token = 'ODkzNTU4MzM5Mjk0ODgzOTEw.YVdNDQ.i-d5auCOMnXh2aH6J5nnxtMvoxs'
+    token_file = open('safe/token.txt', 'r')
+    Lines = token_file.readlines()
+    for line in Lines:
+        token = line.split('\n')[0]
     baumBot = BaumBot(token)
     baumBot.run()
