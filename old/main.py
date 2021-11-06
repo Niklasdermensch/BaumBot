@@ -32,6 +32,19 @@ ydl_opts = {
 	'source_address': '0.0.0.0' # bind to ipv4 since ipv6 addresses cause issues sometimes
 }
 
+def get_random_insult(username):
+	file = open('insults.txt', 'r', encoding='utf-8')
+	lines = file.readlines()
+	all_insults = []
+	for line in lines:
+		elements = line.split('[name]')
+		all_insults.append(elements[0] + username + elements[1])
+	final_answer = random.choice(all_insults)
+	final_answer = final_answer.replace('  ', ' ')
+	return final_answer
+
+
+
 def get_quote():
 	response = requests.get('https://zenquotes.io/api/random')
 	json_data = json.loads(response.text)
@@ -64,8 +77,7 @@ async def on_message(message):
 
 	elif message.content.startswith('/insult'): #v
 		username = message.content.split('/insult', 1)[1]
-		choice = insults[0]
-		await message.channel.send(choice[0] + username + choice[1])
+		await message.channel.send(get_random_insult(username))
 
 	elif message.content.startswith('/randomreddit'): #v
 		await message.channel.send(randomreddit.get_subreddit())

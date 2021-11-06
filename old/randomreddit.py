@@ -7,8 +7,13 @@ reddit = praw.Reddit(
 )
 
 def get_subreddit():
-	memes_submissions = reddit.subreddit('all').new()
-	post_to_pick = 1
-	for i in range(0, post_to_pick):
-			submission = next(x for x in memes_submissions if not x.stickied)
-			return 'https://www.reddit.com/r/' + str(submission.subreddit) + '/top/?t=all'
+    submissions = reddit.subreddit('all').new()
+    post_to_pick = 2
+    links = []
+    for i in range(0, post_to_pick):
+    		submission = next(x for x in submissions if not x.stickied)
+    		links.append('https://www.reddit.com/r/' + str(submission.subreddit) + '/top/?t=all')
+    return links
+
+for l in get_subreddit():
+    print(l)

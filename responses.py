@@ -14,10 +14,8 @@ class Response:
             elements[1] = elements[1].split('\n')[0]
             self.all_responses[elements[0]] = elements[1]
 
-        print(self.all_responses)
-
     def responde(self, message):
         if message not in self.all_responses:
             print('not in responses')
-            return
+            return " "
         return self.all_responses[message]
