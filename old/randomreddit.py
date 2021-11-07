@@ -14,6 +14,3 @@ def get_subreddit():
     		submission = next(x for x in submissions if not x.stickied)
     		links.append('https://www.reddit.com/r/' + str(submission.subreddit) + '/top/?t=all')
     return links
-
-for l in get_subreddit():
-    print(l)

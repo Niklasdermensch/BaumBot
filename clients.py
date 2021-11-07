@@ -1,7 +1,4 @@
 import praw
-import random
-from linereader import copen
-import warnings
 
 class RedditClient:
     def __init__(self):
@@ -11,18 +8,18 @@ class RedditClient:
             user_agent="BaumBot",
             check_for_async=False #yeah fuck you
         )
-        self.max_responses = 20
+        self.max_responses = 5
 
-    def get_random_subreddit(self, count, sort='top_all', onlyNSFW=False):
+    def get_random_subreddit(self, NSFW="yes", count=1, sort='/top/?t=all'):
         count = self._check_max_count(count)
-        sort = self._get_sort_string(sort)
         subreddit = self.reddit.subreddit('all').new()
 
         result = ""
         for i in range(0, count):
-            #yield next element if it is not sticky
-            if onlyNSFW:
+            if NSFW == "only":
                 submission = next(x for x in subreddit if not x.stickied and x.subreddit.over18)
+            elif NSFW == "no":
+                submission = next(x for x in subreddit if not x.stickied and not x.subreddit.over18)
             else:
                 submission = next(x for x in subreddit if not x.stickied)
             result += '<https://www.reddit.com/r/' + str(submission.subreddit) + sort + '>\n'
@@ -44,20 +41,6 @@ class RedditClient:
         if count > self.max_responses:
             return self.max_responses
         return count
-
-    def _get_sort_string(self, filter):
-        sorts = {
-            'hot': '/',
-            'new': '/new',
-            'top_hour': '/top/?t=hour',
-            'top_day': '/top/?t=day',
-            'top_month': '/top/?t=month',
-            'top_year': '/top/?t=year',
-            'top_all': '/top/?t=all',
-        }
-        if filter in sorts:
-            return sorts[filter]
-        return None
 
     def _check_answer(self, text):
         if text == "" or text == None:
@@ -95,6 +78,6 @@ class MusicClient:
     def __init__(self):
         pass
 
-class RadioClient:
-    def __init__(self, genre):
+class StockClient:
+    def __init__(self):
         pass

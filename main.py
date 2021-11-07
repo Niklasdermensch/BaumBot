@@ -29,6 +29,8 @@ class BaumBot:
         self.responses = responses.Response()
         self.reddit_client = clients.RedditClient()
         self.porn_client = clients.PornClient()
+        self.music_client = clients.MusicClient()
+        self.stock_client = clients.StockClient()
 
     def init_events(self):
         @self.client.event
@@ -69,16 +71,47 @@ class BaumBot:
 
         #Reddit client calls
         @self.slash.slash(name="randomsubreddit", description="Gives back a random subreddit link",
-                          options=[create_option(name="count", description="Number of returned subreddit link", option_type=4, required=False)])
-        async def randomsubreddit(context: SlashContext, count: int =1):
+                          options=[create_option(name="nsfw", description="Include, Exclude or Exclusive NSFW", option_type=3, required=False, choices=[
+                                                 create_choice(name="Yes", value="yes"),
+                                                 create_choice(name="No", value="no"),
+                                                 create_choice(name="Only", value="only")]),
+                                   create_option(name="count", description="Number of returned subreddit link", option_type=4, required=False),
+                                   create_option(name="sort", description="Returned link sort by (e.g. new, hot, top)", option_type=3, required=False, choices=[
+                                                 create_choice(name="New", value="/new"),
+                                                 create_choice(name="Hot", value="/"),
+                                                 create_choice(name="TopHour", value="/top/?t=hour"),
+                                                 create_choice(name="TopDay", value="/top/?t=day"),
+                                                 create_choice(name="TopMonth", value="/top/?t=month"),
+                                                 create_choice(name="TopYear", value="top_year': '/top/?t=year"),
+                                                 create_choice(name="TopAll", value="/top/?t=all")])])
+        async def randomsubreddit(context: SlashContext, nsfw: str ="yes", count: int =1, sort: str ="/top/?t=all"):
+            if count > self.reddit_client.max_responses:
+                await context.send("Max. Responses are: " + str(self.reddit_client.max_responses))
             await context.defer()
-            await context.send(self.reddit_client.get_random_subreddit(count))
+            await context.send(self.reddit_client.get_random_subreddit(NSFW=nsfw, count=count, sort=sort))
 
-        @self.slash.slash(name="randomsubredditnsfw", description="Gives back a random NSFW subreddit link",
-                          options=[create_option(name="count", description="Number of returned subreddit link", option_type=4, required=False)])
-        async def randomsubredditnsfw(context: SlashContext, count: int =1):
-            await context.defer()
-            await context.send(self.reddit_client.get_random_subreddit(count, onlyNSFW=True))
+        #TODO Random Post
+        #TODO Memes of the day
+
+        #Music client calls
+        #TODO Play
+        #TODO Stop
+        #TODO Queue -> push -> yeet -> delete
+        #TODO Spotify Ingetration
+        #TODO Repeat
+        #TODO radio <genre>
+
+        #Porn client calls
+        #TODO Random porn
+        #TODO Random category
+        #TODO Random porn star
+        #TODO Random porn page
+
+        #Stock client calls?
+        #Finance system? <- pls no
+
+        #Discord Bot Games (TicTacToe, Chess, etc) calls?
+
 
 if __name__ == '__main__':
     token_file = open('safe/token.txt', 'r')
