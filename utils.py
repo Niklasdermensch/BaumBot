@@ -1,4 +1,4 @@
-async def check_and_join(voice_channel, context):
+async def check_and_join(voice_channel, context, on_join=False):
     #If the author is not in any voice channel
     if not context.author.voice:
         await context.send('I cannot join, because you are not in any voice channel')
@@ -11,7 +11,8 @@ async def check_and_join(voice_channel, context):
 
     #Else leave current channel if possible and return connect() to new one
     await check_and_leave(voice_channel)
-    await context.send('I am joining: "{}"'.format(context.author.voice.channel.name))
+    if on_join: #Otherwhise another call would be marked as responded
+        await context.send('I am joining: "{}"'.format(context.author.voice.channel.name))
     return await context.author.voice.channel.connect()
 
 async def check_and_leave(voice_channel):

@@ -1,4 +1,6 @@
 import praw
+import discord
+import youtube_dl
 
 class RedditClient:
     def __init__(self):
@@ -8,7 +10,7 @@ class RedditClient:
             user_agent="BaumBot",
             check_for_async=False #yeah fuck you
         )
-        self.max_responses = 3
+        self.max_responses = 105
 
     def get_random_subreddit(self, NSFW="yes", count=1, sort='/top/?t=all'):
         count = self._check_max_count(count)
@@ -17,6 +19,7 @@ class RedditClient:
         result = ""
         for i in range(0, count):
             submission = self._get_nsfw_submission(subreddit, NSFW)
+            print("Subreddit: " + str(submission.subreddit))
             result += '<https://www.reddit.com/r/' + str(submission.subreddit) + sort + '>\n'
         result = self._check_answer(result)
         return result
@@ -30,10 +33,9 @@ class RedditClient:
         for i in range(0, count):
             submission = self._get_nsfw_submission(subreddit, NSFW)
 
-            #Check for image
             if images == "only":
                 while True:
-                    if "jpg" in submission.url or "png" in submission.url:
+                    if "jpg" in submission.url or "png" in submission.url or "gif" in submission.url:
                         current_result = submission.url
                         break
                     else:
@@ -45,14 +47,28 @@ class RedditClient:
             if spoilers == "no" and submission.spoiler:
                 count -= 1
             else:
+                print("Post: " + submission.url)
                 result += submission.url + '\n'
-                
+
         result = self._check_answer(result)
         return result
 
-    def get_memes_of_the_day(self, count=1):
-        _count = self._check_max_count(count)
-        #TODO
+    def get_memes_of_the_day(self):
+        subreddits = [
+            "meme",
+            "memes",
+            "dankmemes"
+        ]
+
+        result = ""
+        for subreddit in subreddits:
+            print("loading image from: " + subreddit)
+            sub = self.reddit.subreddit(subreddit).top(time_filter='day')
+            submission = next(x for x in sub if not x.stickied)
+            result += submission.url + '\n'
+
+        result = self._check_answer(result)
+        return result
 
     def _check_max_count(self, count):
         count = int(count)
@@ -99,11 +115,53 @@ class RedditClient:
             submission = next(x for x in subreddit if not x.stickied)
         return submission
 
-class PornClient:
-    def __init__(self):
-        pass
-
 class MusicClient:
+    def __init__(self):
+        self.ydl_opts = ydl_opts = {
+        	'format': 'bestaudio/best',
+        	'outtmpl': '%(extractor)s-%(id)s-%(title)s.%(ext)s',
+        	'restrictfilenames': True,
+        	'noplaylist': True,
+        	'nocheckcertificate': True,
+        	'ignoreerrors': False,
+        	'logtostderr': False,
+        	'quiet': True,
+        	'no_warnings': True,
+        	'default_search': 'auto',
+        	'source_address': '0.0.0.0' # bind to ipv4 since ipv6 addresses cause issues sometimes
+        }
+        self.youtube = youtube_dl.YoutubeDL(ydl_opts)
+
+    def play(self, voice_channel, url):
+        #Differenciate between youtube and spotify
+        if voice_channel.is_paused:
+            voice_channel.resume()
+            voice_channel.stop()
+        elif voice_channel.is_playing:
+            voice_channel.stop()
+            #What about the queue
+
+        with self.youtube as ydl:
+            info = ydl.extract_info(url, download=False)
+            get_url = info['url']
+            voice_channel.play(discord.FFmpegPCMAudio(get_url))
+
+            return info['title']
+
+    def pause(self, voice_channel):
+        if voice_channel.is_playing:
+            voice_channel.pause() #Check things
+            #What if i start /play again?
+
+    def resume(self, voice_channel):
+        if voice_channel.is_paused:
+            voice_channel.resume()
+
+    def stop(self, voice_channel):
+        if voice_channel.is_playing:
+            voice_channel.stop() #What about the queue
+
+class PornClient:
     def __init__(self):
         pass
 

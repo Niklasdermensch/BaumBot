@@ -69,7 +69,7 @@ class BaumBot:
         #Channel commands
         @self.slash.slash(name="join", description="BaumBot joins the channel of the command author")
         async def join(context: SlashContext):
-            self.voice_channel = await utils.check_and_join(self.voice_channel, context)
+            self.voice_channel = await utils.check_and_join(self.voice_channel, context, on_join=True)
 
         @self.slash.slash(name="leave", description="BaumBot leaves its current voice channel")
         async def leave(context: SlashContext):
@@ -113,9 +113,38 @@ class BaumBot:
             await context.defer()
             await context.send(self.reddit_client.get_random_post(NSFW=nsfw, count=count, images=images))
 
-        #TODO Memes of the day
+        @self.slash.slash(name="memesoftheday", description="Gives the 5 best memes of the day")
+        async def memesoftheday(context: SlashContext):
+            await context.defer()
+            await context.send(self.reddit_client.get_memes_of_the_day())
 
         #Music client calls
+        @self.slash.slash(name="play", description="Plays music from given link",
+                          options=[create_option(name="url", description="The Url of the music website", option_type=3, required=True)])
+        async def play(context: SlashContext):
+            self.voice_channel = await utils.check_and_join(self.voice_channel, context)
+            await context.defer()
+            title = self.music_client.play(self.voice_channel, url)
+            await context.send("Now playing: " + title)
+
+        @self.slash.slash(name="pause", description="Stops the current playing song")
+        async def pause(context: SlashContext):
+            await context.defer()
+            self.music_client.pause(self.voice_channel)
+            await context.send("Now Paused!")
+
+        @self.slash.slash(name="resume", description="Stops the current playing song")
+        async def resume(context: SlashContext):
+            await context.defer()
+            self.music_client.resume(self.voice_channel)
+            await context.send("Resumed...")
+
+        @self.slash.slash(name="stop", description="Stops the current playing song")
+        async def stop(context: SlashContext):
+            await context.defer()
+            self.music_client.resume(self.voice_channel)
+            await context.send("(jazz music stops)")
+
         #TODO Play
         #TODO Stop
         #TODO Queue -> push -> yeet -> delete
@@ -139,6 +168,8 @@ class BaumBot:
         #Finance system? <- pls no
 
         #Discord Bot Games (TicTacToe, Chess, etc) calls?
+
+        #Insults
 
 
 if __name__ == '__main__':
