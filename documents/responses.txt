@@ -8,4 +8,7 @@ Johannes stinkt -> Du stinkst selber, du Hund
 Marek stinkt -> Marek ist super!
 Max stinkt -> Nich so schlimm wie du!
 Bli -> Bla
+Bla -> Blo
+Blo -> Blu
+Blu -> Bli
 Bla -> Blub
