@@ -8,7 +8,7 @@ class RedditClient:
             user_agent="BaumBot",
             check_for_async=False #yeah fuck you
         )
-        self.max_responses = 5
+        self.max_responses = 3
 
     def get_random_subreddit(self, NSFW="yes", count=1, sort='/top/?t=all'):
         count = self._check_max_count(count)
@@ -16,19 +16,39 @@ class RedditClient:
 
         result = ""
         for i in range(0, count):
-            if NSFW == "only":
-                submission = next(x for x in subreddit if not x.stickied and x.subreddit.over18)
-            elif NSFW == "no":
-                submission = next(x for x in subreddit if not x.stickied and not x.subreddit.over18)
-            else:
-                submission = next(x for x in subreddit if not x.stickied)
+            submission = self._get_nsfw_submission(subreddit, NSFW)
             result += '<https://www.reddit.com/r/' + str(submission.subreddit) + sort + '>\n'
         result = self._check_answer(result)
         return result
 
-    def get_random_post(self, count=1):
+    def get_random_post(self, NSFW="yes", count=1, images="only", spoilers="no"):
         count = self._check_max_count(count)
-        #TODO
+        subreddit = self.reddit.subreddit('all').new()
+
+        result = ""
+        current_result = ""
+        for i in range(0, count):
+            submission = self._get_nsfw_submission(subreddit, NSFW)
+
+            #Check for image
+            if images == "only":
+                while True:
+                    if "jpg" in submission.url or "png" in submission.url:
+                        current_result = submission.url
+                        break
+                    else:
+                        submission = self._get_nsfw_submission(subreddit, NSFW)
+                        count -= 1
+            elif images == "no":
+                pass
+
+            if spoilers == "no" and submission.spoiler:
+                count -= 1
+            else:
+                result += submission.url + '\n'
+                
+        result = self._check_answer(result)
+        return result
 
     def get_memes_of_the_day(self, count=1):
         _count = self._check_max_count(count)
@@ -69,6 +89,15 @@ class RedditClient:
         file.write(subreddit + '\n')
         file.close()
         print("New: ", subreddit)
+
+    def _get_nsfw_submission(self, subreddit, NSFW):
+        if NSFW == "only":
+            submission = next(x for x in subreddit if not x.stickied and x.subreddit.over18)
+        elif NSFW == "no":
+            submission = next(x for x in subreddit if not x.stickied and not x.subreddit.over18)
+        else:
+            submission = next(x for x in subreddit if not x.stickied)
+        return submission
 
 class PornClient:
     def __init__(self):

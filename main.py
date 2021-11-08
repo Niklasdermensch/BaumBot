@@ -58,6 +58,14 @@ class BaumBot:
             await context.send('Goodbye 👋')
             quit()
 
+        @self.slash.slash(name="clear", description="Clears the current screen")
+        async def shutdown(context: SlashContext):
+            answer = "."
+            for _ in range(100):
+                answer += '\n'
+            answer += "."
+            await context.send(answer)
+
         #Channel commands
         @self.slash.slash(name="join", description="BaumBot joins the channel of the command author")
         async def join(context: SlashContext):
@@ -85,12 +93,26 @@ class BaumBot:
                                                  create_choice(name="TopYear", value="top_year': '/top/?t=year"),
                                                  create_choice(name="TopAll", value="/top/?t=all")])])
         async def randomsubreddit(context: SlashContext, nsfw: str ="yes", count: int =1, sort: str ="/top/?t=all"):
-            if count > self.reddit_client.max_responses:
-                await context.send("Max. Responses are: " + str(self.reddit_client.max_responses))
             await context.defer()
             await context.send(self.reddit_client.get_random_subreddit(NSFW=nsfw, count=count, sort=sort))
 
-        #TODO Random Post
+        @self.slash.slash(name="randomredditpost", description="Gives back a random reddit post",
+                          options=[create_option(name="nsfw", description="Include, Exclude or Exclusive NSFW", option_type=3, required=False, choices=[
+                                                create_choice(name="Yes", value="yes"),
+                                                create_choice(name="No", value="no"),
+                                                create_choice(name="Only", value="only")]),
+                                   create_option(name="count", description="Number of returned posts", option_type=4, required=False),
+                                   create_option(name="images", description="Include, Exclude or Exclusive image content", option_type=3, required=False, choices=[
+                                                 create_choice(name="Yes", value="yes"),
+                                                 create_choice(name="No", value="no"),
+                                                 create_choice(name="Only", value="only")]),
+                                   create_option(name="spoilers", description="Wether to hide spoilers", option_type=3, required=False, choices=[
+                                                 create_choice(name="Yes", value="yes"),
+                                                 create_choice(name="No", value="no")])])
+        async def randomredditpost(context: SlashContext, nsfw: str ="yes", count: int=1, images: str ="only", spoilers: str ="no"):
+            await context.defer()
+            await context.send(self.reddit_client.get_random_post(NSFW=nsfw, count=count, images=images))
+
         #TODO Memes of the day
 
         #Music client calls
@@ -102,12 +124,18 @@ class BaumBot:
         #TODO radio <genre>
 
         #Porn client calls
-        #TODO Random porn
-        #TODO Random category
-        #TODO Random porn star
+        #TODO Random porn <website>
+        #TODO Random category <get links: yes/no>
+        #TODO Random porn star <get links: yes/no>
         #TODO Random porn page
 
         #Stock client calls?
+        #TODO get stock value <stock name> <date>
+        #TODO get stock graph <stock name> <time [today, week, month, year, 5year, all]>
+        #TODO get crypto value <crypto name> <date>
+        #TODO get crypto graph <crypto name> <time [today, week, month, year, 5year, all]>
+        #TODO get top flop of the day
+        #TODO cash converter
         #Finance system? <- pls no
 
         #Discord Bot Games (TicTacToe, Chess, etc) calls?
