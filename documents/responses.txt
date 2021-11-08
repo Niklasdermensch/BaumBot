@@ -11,3 +11,4 @@ Bli -> Bla
 Bla -> Blo
 Blo -> Blu
 Blu -> Bli
+Bla -> Blub
